@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StudyQuest — AI Gamified Learning</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+/* ============================================================
+   CSS VARIABLES & RESET
+   ============================================================ */
+:root {
+  --bg: #0f0c1a;
+  --bg2: #1a1530;
+  --bg3: #231e3d;
+  --card: #1e1938;
+  --card2: #261f45;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.15);
+  --text: #f0ecff;
+  --text2: #a89cc8;
+  --text3: #6b5f8a;
+  --purple: #7c3aed;
+  --purple2: #9b5cf6;
+  --purple3: #c4b5fd;
+  --gold: #f59e0b;
+  --gold2: #fbbf24;
+  --green: #10b981;
+  --green2: #34d399;
+  --red: #ef4444;
+  --teal: #06b6d4;
+  --pink: #ec4899;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --shadow-purple: 0 0 20px rgba(124,58,237,0.4);
+  --shadow-gold: 0 0 20px rgba(245,158,11,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+button{font-family:'Nunito',sans-serif;cursor:pointer;border:none;outline:none}
+input,textarea,select{font-family:'Nunito',sans-serif}
+h1,h2,h3{font-family:'Fredoka One',sans-serif;letter-spacing:0.5px}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--purple);border-radius:2px}
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+.screen{display:none;min-height:100vh;animation:fadeIn .3s ease}
+.screen.active{display:flex;flex-direction:column}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ============================================================
+   SCREEN 1: ONBOARDING
+   ============================================================ */
+#screen-onboard{
+  background: radial-gradient(ellipse at 20% 20%, rgba(124,58,237,.25) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 80%, rgba(245,158,11,.15) 0%, transparent 60%),
+              var(--bg);
+  align-items:center;justify-content:center;padding:24px;
+}
+.onboard-card{
+  background:var(--card);
+  border:1px solid var(--border2);
+  border-radius:24px;
+  padding:40px;
+  max-width:520px;
+  width:100%;
+  box-shadow:var(--shadow);
+}
+.onboard-logo{
+  font-family:'Fredoka One',sans-serif;
+  font-size:42px;
+  background:linear-gradient(135deg,var(--purple2),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  text-align:center;margin-bottom:6px;
+}
+.onboard-sub{text-align:center;color:var(--text2);font-size:14px;margin-bottom:32px;font-weight:600}
+.form-group{margin-bottom:20px}
+.form-label{font-size:13px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block}
+.form-input{
+  width:100%;padding:14px 16px;
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:var(--radius-sm);color:var(--text);font-size:15px;
+  transition:border .2s,box-shadow .2s
+}
+.form-input:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,.2)}
+textarea.form-input{min-height:120px;resize:vertical;line-height:1.6}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-primary{
+  width:100%;padding:16px;font-size:17px;font-weight:800;
+  background:linear-gradient(135deg,var(--purple),var(--purple2));
+  color:#fff;border-radius:var(--radius-sm);
+  box-shadow:var(--shadow-purple);
+  transition:transform .15s,box-shadow .15s
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(124,58,237,.5)}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* ============================================================
+   SCREEN 2: GENERATING
+   ============================================================ */
+#screen-generating{
+  background:var(--bg);
+  align-items:center;justify-content:center;
+}
+.gen-inner{text-align:center;padding:40px}
+.gen-orb{
+  width:120px;height:120px;margin:0 auto 32px;
+  border-radius:50%;
+  background:radial-gradient(circle,var(--purple2),var(--purple));
+  box-shadow:0 0 60px rgba(124,58,237,.6);
+  animation:pulse 2s ease-in-out infinite;
+  display:flex;align-items:center;justify-content:center;
+  font-size:48px;
+}
+@keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 0 60px rgba(124,58,237,.6)}
+50%{transform:scale(1.08);box-shadow:0 0 90px rgba(124,58,237,.9)}}
+.gen-title{font-size:28px;margin-bottom:12px}
+.gen-status{color:var(--text2);font-size:15px;min-height:24px;transition:opacity .3s}
+.gen-bar-wrap{width:280px;height:6px;background:var(--bg3);border-radius:3px;margin:24px auto 0;overflow:hidden}
+.gen-bar{height:100%;background:linear-gradient(90deg,var(--purple),var(--gold));border-radius:3px;width:0%;transition:width .5s ease}
+
+/* ============================================================
+   SCREEN 3: MAP
+   ============================================================ */
+#screen-map{background:var(--bg);display:flex;flex-direction:column}
+.map-header{
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+  padding:14px 20px;
+  display:flex;align-items:center;gap:14px;
+  position:sticky;top:0;z-index:100;
+}
+.map-header-logo{font-size:22px;color:var(--purple3)}
+.map-header-subject{font-size:18px;font-weight:800;color:var(--text)}
+.map-header-exam{font-size:11px;color:var(--text2);font-weight:700;background:var(--bg3);padding:3px 10px;border-radius:20px;border:1px solid var(--border)}
+.xp-block{display:flex;align-items:center;gap:8px;margin-left:auto}
+.xp-label{font-size:12px;color:var(--gold);font-weight:800}
+.xp-bar-wrap{width:80px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.xp-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px;transition:width .5s}
+.streak-badge{
+  background:rgba(245,158,11,.15);
+  border:1px solid rgba(245,158,11,.3);
+  color:var(--gold);font-size:12px;font-weight:800;
+  padding:4px 10px;border-radius:20px;
+}
+
+.map-body{flex:1;padding:20px;overflow-y:auto;max-width:480px;margin:0 auto;width:100%}
+.map-title-bar{text-align:center;margin-bottom:24px}
+.map-title-bar h2{font-size:22px;color:var(--purple3)}
+.map-title-bar p{font-size:12px;color:var(--text2);margin-top:4px}
+
+/* Map path SVG */
+.map-path-container{position:relative}
+.map-path-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.map-nodes{position:relative;z-index:1;display:flex;flex-direction:column;gap:0;padding:10px 0}
+
+.map-row{display:flex;align-items:center;min-height:100px}
+.map-row.left{justify-content:flex-start;padding-left:40px}
+.map-row.right{justify-content:flex-end;padding-right:40px}
+.map-row.center{justify-content:center}
+
+.level-node{
+  width:82px;height:82px;
+  border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;position:relative;
+  transition:transform .2s,box-shadow .2s;
+  border:3px solid transparent;
+  text-align:center;
+  user-select:none;
+}
+.level-node:hover{transform:scale(1.1)}
+.level-node .n-icon{font-size:26px;line-height:1;display:block}
+.level-node .n-label{font-size:9px;font-weight:800;margin-top:4px;line-height:1.2;max-width:70px;color:inherit}
+
+.level-node.completed{
+  background:rgba(16,185,129,.15);
+  border-color:var(--green);
+  color:var(--green2);
+}
+.level-node.completed::after{
+  content:'✓';position:absolute;top:-4px;right:-4px;
+  width:20px;height:20px;background:var(--green);border-radius:50%;
+  font-size:11px;font-weight:900;color:#fff;
+  display:flex;align-items:center;justify-content:center;line-height:20px;
+}
+.level-node.active{
+  background:rgba(124,58,237,.2);
+  border-color:var(--purple);
+  color:var(--purple3);
+  animation:activePulse 2.5s ease-in-out infinite;
+}
+@keyframes activePulse{0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,.4)}
+50%{box-shadow:0 0 0 10px rgba(124,58,237,0)}}
+.level-node.locked{
+  background:var(--bg3);border-color:var(--border2);
+  color:var(--text3);cursor:not-allowed;opacity:.55;
+}
+.level-node.important{
+  background:rgba(245,158,11,.15);
+  border-color:var(--gold);
+  color:var(--gold2);
+  animation:goldGlow 2.2s ease-in-out infinite;
+}
+@keyframes goldGlow{0%,100%{box-shadow:0 0 8px 2px rgba(245,158,11,.3)}
+50%{box-shadow:0 0 22px 8px rgba(245,158,11,.55)}}
+.level-node.boss{
+  width:92px;height:92px;
+  background:linear-gradient(135deg,rgba(245,158,11,.25),rgba(239,68,68,.15));
+  border-color:var(--gold);
+  color:var(--gold2);
+  animation:goldGlow 1.8s ease-in-out infinite;
+}
+.level-node.boss::before{
+  content:'★';position:absolute;top:-8px;
+  font-size:16px;color:var(--gold);
+  filter:drop-shadow(0 0 6px var(--gold));
+}
+
+.checkpoint-banner{
+  width:100%;text-align:center;
+  padding:8px 0;margin:4px 0;
+  font-size:11px;font-weight:800;
+  color:var(--purple3);letter-spacing:1.5px;
+  background:rgba(124,58,237,.08);
+  border-radius:8px;border:1px solid rgba(124,58,237,.2);
+}
+
+/* ============================================================
+   LEVEL DETAIL PANEL (bottom sheet)
+   ============================================================ */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:200;display:none;backdrop-filter:blur(4px);
+}
+.overlay.open{display:block;animation:fadeIn .2s ease}
+.level-panel{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:480px;
+  background:var(--bg2);
+  border-top:1px solid var(--border2);
+  border-radius:24px 24px 0 0;
+  padding:20px 20px 32px;
+  z-index:300;
+  max-height:85vh;overflow-y:auto;
+  display:none;
+}
+.level-panel.open{display:block;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(100%)}to{transform:translateX(-50%) translateY(0)}}
+.panel-drag{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px}
+.panel-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
+.panel-icon-big{font-size:42px;line-height:1}
+.panel-meta{flex:1}
+.panel-meta h3{font-size:22px;color:var(--text);margin-bottom:2px}
+.panel-meta p{font-size:12px;color:var(--text2);font-weight:700}
+.diff-badge{font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;margin-top:6px;display:inline-block}
+.diff-badge.easy{background:rgba(16,185,129,.2);color:var(--green2);border:1px solid rgba(16,185,129,.3)}
+.diff-badge.medium{background:rgba(245,158,11,.2);color:var(--gold2);border:1px solid rgba(245,158,11,.3)}
+.diff-badge.hard{background:rgba(239,68,68,.2);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
+.diff-badge.boss{background:linear-gradient(135deg,rgba(245,158,11,.3),rgba(239,68,68,.2));color:var(--gold2);border:1px solid rgba(245,158,11,.4)}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+.stat-card{background:var(--bg3);border-radius:10px;padding:10px;text-align:center}
+.stat-val{font-size:20px;font-weight:900;color:var(--text)}
+.stat-lbl{font-size:9px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+.modes-label{font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.modes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.mode-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;padding:12px 8px;text-align:center;
+  cursor:pointer;transition:all .15s;
+}
+.mode-card:hover,.mode-card.selected{
+  border-color:var(--purple);
+  background:rgba(124,58,237,.15);
+}
+.mode-card .mc-icon{font-size:22px;display:block;margin-bottom:4px}
+.mode-card .mc-name{font-size:10px;font-weight:800;color:var(--text2)}
+.mode-card.selected .mc-name{color:var(--purple3)}
+
+.btn-start{
+  width:100%;padding:17px;
+  background:linear-gradient(135deg,var(--purple),var(--purple2));
+  color:#fff;font-size:17px;font-weight:800;
+  border-radius:var(--radius-sm);
+  box-shadow:var(--shadow-purple);
+  transition:transform .15s,box-shadow .15s;
+  letter-spacing:.5px;
+}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 0 35px rgba(124,58,237,.6)}
+.btn-close-panel{
+  position:absolute;top:20px;right:20px;
+  background:var(--bg3);border:1px solid var(--border2);
+  color:var(--text2);width:32px;height:32px;border-radius:50%;
+  font-size:16px;display:flex;align-items:center;justify-content:center;
+}
+
+/* ============================================================
+   SCREEN 4: LEVEL SESSION
+   ============================================================ */
+#screen-session{background:var(--bg);display:flex;flex-direction:column}
+.session-header{
+  padding:16px 20px;
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.btn-back{
+  background:var(--bg3);border:1px solid var(--border2);
+  color:var(--text2);padding:8px 14px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:700;transition:all .15s;
+}
+.btn-back:hover{border-color:var(--purple);color:var(--purple3)}
+.session-title-block{flex:1}
+.session-title-block h2{font-size:18px;color:var(--text)}
+.session-title-block p{font-size:11px;color:var(--text2);font-weight:700}
+.session-mode-badge{
+  font-size:11px;font-weight:800;padding:5px 12px;border-radius:20px;
+  background:rgba(124,58,237,.2);color:var(--purple3);border:1px solid rgba(124,58,237,.3);
+}
+
+.session-body{flex:1;overflow-y:auto;padding:20px;max-width:640px;margin:0 auto;width:100%}
+
+/* Tab bar for session content */
+.tab-bar{
+  display:flex;gap:4px;background:var(--bg3);
+  border-radius:12px;padding:4px;margin-bottom:20px;
+  overflow-x:auto;
+}
+.tab-btn{
+  padding:8px 14px;border-radius:8px;font-size:12px;font-weight:800;
+  color:var(--text2);background:transparent;transition:all .15s;white-space:nowrap;
+}
+.tab-btn.active{background:var(--purple);color:#fff}
+
+.tab-content{display:none}
+.tab-content.active{display:block;animation:fadeIn .2s ease}
+
+/* Summary tab */
+.summary-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;margin-bottom:14px;
+}
+.summary-card h3{font-size:18px;color:var(--purple3);margin-bottom:12px}
+.summary-card p,.summary-card li{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:8px}
+.summary-card ul{padding-left:20px}
+.formula-box{
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:10px;padding:14px;margin:10px 0;
+  font-size:15px;font-weight:700;color:var(--teal);
+  text-align:center;letter-spacing:.5px;
+}
+.key-point{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:10px 12px;background:rgba(124,58,237,.08);
+  border-left:3px solid var(--purple);border-radius:0 8px 8px 0;
+  margin-bottom:8px;font-size:13px;color:var(--text2);
+}
+
+/* Flashcard tab */
+.flashcard-deck{display:flex;flex-direction:column;align-items:center}
+.flashcard{
+  width:100%;max-width:400px;
+  background:var(--card);border:1px solid var(--border2);
+  border-radius:20px;padding:32px 24px;
+  text-align:center;cursor:pointer;
+  min-height:200px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  margin-bottom:20px;
+  transition:transform .15s,box-shadow .15s;
+  box-shadow:var(--shadow);
+  position:relative;
+}
+.flashcard:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.flashcard-side{font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.flashcard-q{font-size:17px;font-weight:700;color:var(--text);line-height:1.5}
+.flashcard-a{font-size:15px;color:var(--green2);line-height:1.5;display:none}
+.flashcard.flipped .flashcard-q{display:none}
+.flashcard.flipped .flashcard-a{display:block}
+.flashcard.flipped{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3)}
+.flashcard-nav{display:flex;gap:12px;align-items:center}
+.btn-fc{
+  padding:10px 22px;border-radius:var(--radius-sm);font-size:13px;font-weight:800;
+  transition:all .15s;
+}
+.btn-fc.know{background:rgba(16,185,129,.2);color:var(--green2);border:1px solid rgba(16,185,129,.3)}
+.btn-fc.know:hover{background:rgba(16,185,129,.35)}
+.btn-fc.retry{background:rgba(239,68,68,.2);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
+.btn-fc.retry:hover{background:rgba(239,68,68,.35)}
+.fc-counter{font-size:13px;color:var(--text2);font-weight:700;min-width:60px;text-align:center}
+.flip-hint{font-size:11px;color:var(--text3);margin-bottom:8px}
+
+/* Quiz tab */
+.quiz-q-block{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;margin-bottom:16px;
+}
+.quiz-q-num{font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.quiz-q-text{font-size:16px;font-weight:700;color:var(--text);line-height:1.5;margin-bottom:16px}
+.quiz-options{display:flex;flex-direction:column;gap:8px}
+.quiz-opt{
+  padding:12px 16px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius-sm);font-size:14px;font-weight:600;
+  color:var(--text2);cursor:pointer;transition:all .15s;text-align:left;
+}
+.quiz-opt:hover:not(.answered){border-color:var(--purple);color:var(--purple3);background:rgba(124,58,237,.1)}
+.quiz-opt.correct{background:rgba(16,185,129,.15);border-color:var(--green);color:var(--green2)!important}
+.quiz-opt.wrong{background:rgba(239,68,68,.15);border-color:var(--red);color:#fca5a5!important}
+.quiz-opt.answered{cursor:default}
+.quiz-explanation{
+  margin-top:12px;padding:12px;background:rgba(6,182,212,.08);
+  border-left:3px solid var(--teal);border-radius:0 8px 8px 0;
+  font-size:13px;color:var(--text2);line-height:1.6;display:none;
+}
+.quiz-score-bar{
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg3);border-radius:10px;padding:10px 14px;
+  margin-bottom:16px;font-size:13px;color:var(--text2);font-weight:700;
+}
+.quiz-score-num{font-size:22px;font-weight:900;color:var(--green2)}
+
+/* Videos tab */
+.video-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px;margin-bottom:12px;
+  display:flex;gap:14px;align-items:flex-start;
+  cursor:pointer;transition:all .15s;
+}
+.video-card:hover{border-color:var(--purple);transform:translateX(3px)}
+.video-thumb{
+  width:80px;height:54px;border-radius:8px;
+  background:linear-gradient(135deg,var(--purple),var(--pink));
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+}
+.video-info h4{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:1.3}
+.video-info p{font-size:12px;color:var(--text2)}
+.video-channel{font-size:11px;color:var(--purple3);font-weight:700;margin-top:4px}
+
+/* Loading states */
+.loading-block{
+  background:var(--bg3);border-radius:10px;
+  padding:20px;text-align:center;color:var(--text2);
+  font-size:14px;margin-bottom:14px;
+}
+.loading-block .spin{
+  font-size:28px;display:block;margin-bottom:8px;
+  animation:spin 1.5s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shimmer{
+  background:linear-gradient(90deg,var(--bg3) 25%,var(--bg2) 50%,var(--bg3) 75%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite;
+  border-radius:8px;height:16px;margin-bottom:8px;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ============================================================
+   COMPLETION OVERLAY
+   ============================================================ */
+.completion-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.85);
+  z-index:500;display:none;align-items:center;justify-content:center;
+  flex-direction:column;text-align:center;padding:32px;
+}
+.completion-overlay.show{display:flex;animation:fadeIn .3s ease}
+.completion-inner{max-width:380px}
+.completion-icon{font-size:72px;margin-bottom:16px;display:block;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
+.completion-title{font-size:36px;margin-bottom:8px;color:var(--gold)}
+.completion-sub{font-size:16px;color:var(--text2);margin-bottom:24px;line-height:1.5}
+.xp-gained{
+  font-size:28px;font-weight:900;color:var(--gold);
+  background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);
+  border-radius:var(--radius-sm);padding:12px 28px;margin-bottom:24px;display:inline-block;
+}
+.btn-continue{
+  padding:16px 40px;background:linear-gradient(135deg,var(--purple),var(--gold));
+  color:#fff;font-size:17px;font-weight:900;border-radius:var(--radius-sm);
+  box-shadow:0 0 30px rgba(124,58,237,.4);
+  transition:transform .15s;
+}
+.btn-continue:hover{transform:scale(1.05)}
+/* confetti canvas */
+#confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:499}
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.hidden{display:none!important}
+.error-box{
+  background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);
+  border-radius:10px;padding:14px;color:#fca5a5;font-size:13px;margin-bottom:12px;
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     SCREEN 1: ONBOARDING
+     ============================================================ -->
+<div id="screen-onboard" class="screen active">
+  <div class="onboard-card">
+    <div class="onboard-logo">StudyQuest ⚡</div>
+    <div class="onboard-sub">Turn your syllabus into a game. Beat every level. Ace your exam.</div>
+
+    <div class="form-group">
+      <label class="form-label">Your Name</label>
+      <input type="text" class="form-input" id="inp-name" placeholder="e.g. Arjun" maxlength="30"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Subject</label>
+      <input type="text" class="form-input" id="inp-subject" placeholder="e.g. Physics, History, Chemistry" maxlength="50"/>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Exam Date</label>
+        <input type="date" class="form-input" id="inp-date"/>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Hours / Day</label>
+        <select class="form-input" id="inp-hours">
+          <option value="1">1 hour</option>
+          <option value="2" selected>2 hours</option>
+          <option value="3">3 hours</option>
+          <option value="4">4 hours</option>
+          <option value="5">5+ hours</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:20px">
+      <label class="form-label">Syllabus / Topics</label>
+      <textarea class="form-input" id="inp-syllabus" placeholder="Paste your syllabus, topic list, or just describe what you need to study. For example:&#10;&#10;1. Newton's Laws of Motion&#10;2. Work, Energy and Power&#10;3. Waves and Oscillations&#10;4. Thermodynamics&#10;5. Electrostatics"></textarea>
+    </div>
+    <div id="onboard-error" class="error-box hidden"></div>
+    <button class="btn-primary" id="btn-generate" onclick="startGeneration()">⚡ Build My Study Map</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 2: GENERATING
+     ============================================================ -->
+<div id="screen-generating" class="screen">
+  <div class="gen-inner">
+    <div class="gen-orb">🧠</div>
+    <h1 class="gen-title">Building Your Map</h1>
+    <div class="gen-status" id="gen-status">Analysing your syllabus…</div>
+    <div class="gen-bar-wrap"><div class="gen-bar" id="gen-bar"></div></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 3: MAP
+     ============================================================ -->
+<div id="screen-map" class="screen">
+  <div class="map-header">
+    <span class="map-header-logo">⚡</span>
+    <div>
+      <div class="map-header-subject" id="hdr-subject">Physics</div>
+    </div>
+    <div class="map-header-exam" id="hdr-exam">Exam: —</div>
+    <div class="xp-block">
+      <span class="xp-label" id="xp-label">0 XP</span>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xp-bar-fill" style="width:0%"></div></div>
+    </div>
+    <div class="streak-badge" id="streak-badge">🔥 0</div>
+  </div>
+
+  <div class="map-body">
+    <div class="map-title-bar">
+      <h2 id="map-h2">Your Quest Map</h2>
+      <p id="map-sub">Tap a level to begin</p>
+    </div>
+    <div class="map-path-container" id="map-path-container">
+      <svg class="map-path-svg" id="map-path-svg"></svg>
+      <div class="map-nodes" id="map-nodes"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Level detail overlay -->
+<div class="overlay" id="panel-overlay" onclick="closePanel()"></div>
+<div class="level-panel" id="level-panel">
+  <div class="panel-drag"></div>
+  <button class="btn-close-panel" onclick="closePanel()">✕</button>
+  <div class="panel-top">
+    <div class="panel-icon-big" id="panel-icon">📚</div>
+    <div class="panel-meta">
+      <h3 id="panel-title">Level</h3>
+      <p id="panel-subtitle">Subject · Level N</p>
+      <div class="diff-badge medium" id="panel-diff">Medium</div>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-val" id="pstat-flash">–</div><div class="stat-lbl">Cards</div></div>
+    <div class="stat-card"><div class="stat-val" id="pstat-quiz">–</div><div class="stat-lbl">Questions</div></div>
+    <div class="stat-card"><div class="stat-val" id="pstat-vid">–</div><div class="stat-lbl">Videos</div></div>
+    <div class="stat-card"><div class="stat-val" id="pstat-xp">–</div><div class="stat-lbl">XP</div></div>
+  </div>
+  <div class="modes-label">Choose Game Mode</div>
+  <div class="modes-grid" id="modes-grid"></div>
+  <button class="btn-start" onclick="launchSession()">▶ Start Level</button>
+</div>
+
+<!-- ============================================================
+     SCREEN 4: LEVEL SESSION
+     ============================================================ -->
+<div id="screen-session" class="screen">
+  <div class="session-header">
+    <button class="btn-back" onclick="goToMap()">← Map</button>
+    <div class="session-title-block">
+      <h2 id="sess-title">Level Title</h2>
+      <p id="sess-meta">Subject · Level N</p>
+    </div>
+    <div class="session-mode-badge" id="sess-mode-badge">Flashcards</div>
+  </div>
+
+  <div class="session-body">
+    <div class="tab-bar" id="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('summary',this)">📖 Summary</button>
+      <button class="tab-btn" onclick="switchTab('flashcards',this)">🃏 Flashcards</button>
+      <button class="tab-btn" onclick="switchTab('quiz',this)">⚔️ Quiz</button>
+      <button class="tab-btn" onclick="switchTab('videos',this)">▶️ Videos</button>
+    </div>
+
+    <!-- SUMMARY TAB -->
+    <div class="tab-content active" id="tab-summary">
+      <div id="summary-content"><div class="loading-block"><span class="spin">⚙️</span>Generating summary…</div></div>
+    </div>
+
+    <!-- FLASHCARDS TAB -->
+    <div class="tab-content" id="tab-flashcards">
+      <div id="flashcard-content"><div class="loading-block"><span class="spin">⚙️</span>Generating flashcards…</div></div>
+    </div>
+
+    <!-- QUIZ TAB -->
+    <div class="tab-content" id="tab-quiz">
+      <div id="quiz-content"><div class="loading-block"><span class="spin">⚙️</span>Generating quiz…</div></div>
+    </div>
+
+    <!-- VIDEOS TAB -->
+    <div class="tab-content" id="tab-videos">
+      <div id="videos-content"><div class="loading-block"><span class="spin">⚙️</span>Finding videos…</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     COMPLETION OVERLAY
+     ============================================================ -->
+<canvas id="confetti-canvas"></canvas>
+<div class="completion-overlay" id="completion-overlay">
+  <div class="completion-inner">
+    <span class="completion-icon">🏆</span>
+    <h1 class="completion-title">Level Complete!</h1>
+    <div class="completion-sub" id="completion-msg">Amazing work! Keep pushing forward.</div>
+    <div class="xp-gained" id="xp-gained">+150 XP</div>
+    <button class="btn-continue" onclick="closeCompletion()">Continue Journey →</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const STATE = {
+  name: '',
+  subject: '',
+  examDate: '',
+  hours: 2,
+  syllabus: '',
+  levels: [],
+  xp: 0,
+  streak: 0,
+  currentLevelIdx: null,
+  selectedMode: 'flashcards',
+  completedLevels: new Set(),
+  sessionData: null,
+  quizScore: 0,
+  quizAnswered: 0,
+};
+
+const MODES = [
+  {id:'flashcards', icon:'🃏', name:'Flashcards'},
+  {id:'quiz', icon:'⚔️', name:'Quiz Battle'},
+  {id:'summary', icon:'📖', name:'Study Mode'},
+  {id:'flashcards', icon:'⚡', name:'Speed Run'},
+  {id:'quiz', icon:'🧩', name:'Puzzle Mode'},
+  {id:'quiz', icon:'📝', name:'Exam Mode'},
+];
+
+const ENCOURAGEMENTS = [
+  "You're on fire! 🔥", "Incredible focus!", "One step closer to victory!",
+  "Knowledge unlocked! 🧠", "You crushed it!", "The boss level awaits!",
+];
+
+// ============================================================
+// SCREEN NAVIGATION
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+// ============================================================
+// CLAUDE API CALL
+// ============================================================
+async function callClaude(prompt, systemPrompt) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: systemPrompt || 'You are a helpful educational AI. Always respond with valid JSON only. No markdown, no explanation, just the raw JSON object.',
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  const data = await response.json();
+  const text = data.content.map(c => c.text || '').join('');
+  const cleaned = text.replace(/```json|```/g, '').trim();
+  return JSON.parse(cleaned);
+}
+
+// ============================================================
+// ONBOARDING → GENERATION
+// ============================================================
+function showError(msg) {
+  const el = document.getElementById('onboard-error');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+}
+
+async function startGeneration() {
+  const name = document.getElementById('inp-name').value.trim();
+  const subject = document.getElementById('inp-subject').value.trim();
+  const syllabus = document.getElementById('inp-syllabus').value.trim();
+  const examDate = document.getElementById('inp-date').value;
+  const hours = document.getElementById('inp-hours').value;
+
+  if (!name || !subject || !syllabus) {
+    showError('Please fill in your name, subject, and syllabus before continuing.');
+    return;
+  }
+
+  STATE.name = name;
+  STATE.subject = subject;
+  STATE.syllabus = syllabus;
+  STATE.examDate = examDate;
+  STATE.hours = parseInt(hours);
+
+  showScreen('generating');
+  await generateMap();
+}
+
+async function animateGen(statusEl, barEl, text, pct, delay) {
+  await new Promise(r => setTimeout(r, delay));
+  statusEl.textContent = text;
+  barEl.style.width = pct + '%';
+}
+
+async function generateMap() {
+  const statusEl = document.getElementById('gen-status');
+  const barEl = document.getElementById('gen-bar');
+
+  await animateGen(statusEl, barEl, 'Reading your syllabus…', 15, 400);
+  await animateGen(statusEl, barEl, 'Identifying important topics…', 35, 900);
+  await animateGen(statusEl, barEl, 'Estimating difficulty levels…', 55, 500);
+  await animateGen(statusEl, barEl, 'Building your study map…', 75, 600);
+
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const result = await callClaude(
+      `Analyse this ${STATE.subject} syllabus and create a structured learning map.
+
+Syllabus: ${STATE.syllabus}
+Exam date: ${STATE.examDate || 'not specified'}
+Available study hours per day: ${STATE.hours}
+Today's date: ${today}
+
+Return a JSON object with this exact structure:
+{
+  "subject": "subject name",
+  "totalLevels": number,
+  "levels": [
+    {
+      "id": "unique-id",
+      "title": "Topic Title",
+      "icon": "one relevant emoji",
+      "difficulty": "easy|medium|hard",
+      "importance": "normal|important|boss",
+      "unit": 1,
+      "flashcardCount": number between 5-12,
+      "quizCount": number between 5-10,
+      "videoCount": number between 2-4,
+      "xpReward": number between 80-200,
+      "description": "one sentence description"
+    }
+  ],
+  "checkpoints": [array of unit numbers after which to show a checkpoint banner, e.g. [1,2]]
+}`
+    );
+
+    await animateGen(statusEl, barEl, 'Finalising your map…', 95, 400);
+    STATE.levels = result.levels;
+    STATE.checkpoints = result.checkpoints || [];
+
+    await new Promise(r => setTimeout(r, 500));
+    barEl.style.width = '100%';
+    await new Promise(r => setTimeout(r, 300));
+
+    buildMap();
+    showScreen('map');
+    updateHeader();
+
+  } catch(e) {
+    console.error(e);
+    statusEl.textContent = 'Error generating map. Using demo content…';
+    await new Promise(r => setTimeout(r, 1500));
+    loadDemoMap();
+    buildMap();
+    showScreen('map');
+    updateHeader();
+  }
+}
+
+function loadDemoMap() {
+  STATE.levels = [
+    {id:'l1',title:'Introduction & Basics',icon:'📚',difficulty:'easy',importance:'normal',unit:1,flashcardCount:6,quizCount:5,videoCount:2,xpReward:80,description:'Foundational concepts and terminology.'},
+    {id:'l2',title:'Core Principles',icon:'⚡',difficulty:'easy',importance:'important',unit:1,flashcardCount:8,quizCount:7,videoCount:3,xpReward:100,description:'The key principles that underpin everything.'},
+    {id:'l3',title:'Applied Concepts',icon:'🔬',difficulty:'medium',importance:'normal',unit:1,flashcardCount:9,quizCount:8,videoCount:3,xpReward:120,description:'Applying theory to real problems.'},
+    {id:'l4',title:'Problem Solving',icon:'🧩',difficulty:'medium',importance:'important',unit:2,flashcardCount:10,quizCount:9,videoCount:3,xpReward:140,description:'Structured approaches to solving problems.'},
+    {id:'l5',title:'Advanced Topics',icon:'🚀',difficulty:'hard',importance:'important',unit:2,flashcardCount:11,quizCount:10,videoCount:4,xpReward:160,description:'Deep dives into complex material.'},
+    {id:'l6',title:'Integration & Review',icon:'🌐',difficulty:'hard',importance:'normal',unit:2,flashcardCount:8,quizCount:8,videoCount:2,xpReward:150,description:'Connecting all topics together.'},
+    {id:'l7',title:'Exam Boss Level',icon:'👑',difficulty:'hard',importance:'boss',unit:3,flashcardCount:14,quizCount:12,videoCount:5,xpReward:300,description:'The ultimate challenge — full exam simulation.'},
+  ];
+  STATE.checkpoints = [1, 2];
+}
+
+// ============================================================
+// BUILD MAP
+// ============================================================
+function buildMap() {
+  const container = document.getElementById('map-nodes');
+  container.innerHTML = '';
+
+  const positions = ['left','right','center','left','right','center','left','right','center'];
+  let unitsSeen = new Set();
+  let nodeElements = [];
+
+  STATE.levels.forEach((level, i) => {
+    // Checkpoint banner
+    if (i > 0 && STATE.checkpoints.includes(STATE.levels[i-1].unit) && !unitsSeen.has(STATE.levels[i-1].unit)) {
+      unitsSeen.add(STATE.levels[i-1].unit);
+      const banner = document.createElement('div');
+      banner.className = 'checkpoint-banner';
+      banner.textContent = `⚑  Unit ${STATE.levels[i-1].unit} Complete`;
+      container.appendChild(banner);
+    }
+
+    const row = document.createElement('div');
+    const pos = positions[i % positions.length];
+    row.className = 'map-row ' + pos;
+
+    const node = document.createElement('div');
+    let status = 'locked';
+    if (STATE.completedLevels.has(level.id)) status = 'completed';
+    else if (i === getNextUnlockedIdx()) status = 'active';
+    else if (i <= getNextUnlockedIdx()) status = 'completed'; // shouldn't happen but safe
+
+    if (status === 'locked' && level.importance === 'boss') node.className = 'level-node boss';
+    else if (status === 'locked' && level.importance === 'important') node.className = 'level-node important locked';
+    else node.className = 'level-node ' + (level.importance === 'boss' ? 'boss ' : level.importance === 'important' ? 'important ' : '') + status;
+
+    // Override: boss is always boss styling
+    if (level.importance === 'boss') {
+      node.className = 'level-node boss' + (status === 'locked' ? ' locked' : status === 'completed' ? ' completed' : '');
+    }
+
+    node.id = 'node-' + level.id;
+    node.dataset.idx = i;
+    node.innerHTML = `<span class="n-icon">${level.icon}</span><span class="n-label">${level.title}</span>`;
+    node.onclick = () => openLevelPanel(i);
+
+    row.appendChild(node);
+    container.appendChild(row);
+    nodeElements.push({node, row, pos});
+  });
+}
+
+function getNextUnlockedIdx() {
+  for (let i = 0; i < STATE.levels.length; i++) {
+    if (!STATE.completedLevels.has(STATE.levels[i].id)) return i;
+  }
+  return STATE.levels.length; // all done
+}
+
+function refreshMap() {
+  buildMap();
+}
+
+function updateHeader() {
+  document.getElementById('hdr-subject').textContent = STATE.subject || 'Study';
+  document.getElementById('hdr-exam').textContent = STATE.examDate ? `Exam: ${STATE.examDate}` : 'Exam: Set date';
+  document.getElementById('xp-label').textContent = STATE.xp + ' XP';
+  document.getElementById('xp-bar-fill').style.width = Math.min(100, (STATE.xp % 500) / 5) + '%';
+  document.getElementById('streak-badge').textContent = '🔥 ' + STATE.streak;
+  document.getElementById('map-h2').textContent = STATE.name ? `${STATE.name}'s Map` : 'Your Quest Map';
+  const total = STATE.levels.length;
+  const done = STATE.completedLevels.size;
+  document.getElementById('map-sub').textContent = `${done}/${total} levels complete · Tap a level to begin`;
+}
+
+// ============================================================
+// LEVEL PANEL
+// ============================================================
+function openLevelPanel(idx) {
+  const level = STATE.levels[idx];
+  STATE.currentLevelIdx = idx;
+  STATE.selectedMode = 'flashcards';
+
+  document.getElementById('panel-icon').textContent = level.icon;
+  document.getElementById('panel-title').textContent = level.title;
+  document.getElementById('panel-subtitle').textContent = `${STATE.subject} · Level ${idx+1}`;
+  const diff = document.getElementById('panel-diff');
+  diff.textContent = level.importance === 'boss' ? '👑 BOSS LEVEL' : level.difficulty.charAt(0).toUpperCase() + level.difficulty.slice(1);
+  diff.className = 'diff-badge ' + (level.importance === 'boss' ? 'boss' : level.difficulty);
+
+  document.getElementById('pstat-flash').textContent = level.flashcardCount;
+  document.getElementById('pstat-quiz').textContent = level.quizCount;
+  document.getElementById('pstat-vid').textContent = level.videoCount;
+  document.getElementById('pstat-xp').textContent = '+' + level.xpReward;
+
+  // Modes
+  const grid = document.getElementById('modes-grid');
+  grid.innerHTML = '';
+  MODES.forEach((m, i) => {
+    const card = document.createElement('div');
+    card.className = 'mode-card' + (i === 0 ? ' selected' : '');
+    card.innerHTML = `<span class="mc-icon">${m.icon}</span><span class="mc-name">${m.name}</span>`;
+    card.onclick = () => {
+      document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      STATE.selectedMode = m.id;
+    };
+    grid.appendChild(card);
+  });
+
+  document.getElementById('panel-overlay').classList.add('open');
+  document.getElementById('level-panel').classList.add('open');
+}
+
+function closePanel() {
+  document.getElementById('panel-overlay').classList.remove('open');
+  document.getElementById('level-panel').classList.remove('open');
+}
+
+// ============================================================
+// LAUNCH SESSION
+// ============================================================
+function launchSession() {
+  closePanel();
+  const level = STATE.levels[STATE.currentLevelIdx];
+  const idx = STATE.currentLevelIdx;
+
+  document.getElementById('sess-title').textContent = level.title;
+  document.getElementById('sess-meta').textContent = `${STATE.subject} · Level ${idx+1}`;
+  document.getElementById('sess-mode-badge').textContent = STATE.selectedMode.charAt(0).toUpperCase() + STATE.selectedMode.slice(1);
+
+  // Reset tabs
+  document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelector('.tab-btn').classList.add('active');
+  document.getElementById('tab-summary').classList.add('active');
+
+  // Clear previous content
+  document.getElementById('summary-content').innerHTML = '<div class="loading-block"><span class="spin">⚙️</span>Generating summary…</div>';
+  document.getElementById('flashcard-content').innerHTML = '<div class="loading-block"><span class="spin">⚙️</span>Generating flashcards…</div>';
+  document.getElementById('quiz-content').innerHTML = '<div class="loading-block"><span class="spin">⚙️</span>Generating quiz…</div>';
+  document.getElementById('videos-content').innerHTML = '<div class="loading-block"><span class="spin">⚙️</span>Finding videos…</div>';
+
+  STATE.sessionData = null;
+  STATE.quizScore = 0;
+  STATE.quizAnswered = 0;
+
+  showScreen('session');
+
+  // Jump to selected tab
+  const tabMap = {flashcards:'flashcards', quiz:'quiz', summary:'summary'};
+  const targetTab = tabMap[STATE.selectedMode] || 'summary';
+  const tabBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.textContent.toLowerCase().includes(targetTab));
+  if (tabBtn) switchTab(targetTab, tabBtn);
+
+  generateSessionContent(level);
+}
+
+// ============================================================
+// GENERATE LEVEL CONTENT
+// ============================================================
+async function generateSessionContent(level) {
+  try {
+    const result = await callClaude(
+      `Generate comprehensive study content for this topic: "${level.title}" (${STATE.subject}).
+
+Return a JSON object with EXACTLY this structure:
+{
+  "summary": "A 3-4 sentence overview of the topic explaining what it is and why it matters",
+  "keyPoints": ["point 1", "point 2", "point 3", "point 4", "point 5"],
+  "formulas": ["formula 1 with explanation", "formula 2 with explanation"],
+  "flashcards": [
+    {"question": "question text", "answer": "answer text"}
+  ],
+  "quiz": [
+    {
+      "question": "question text",
+      "options": ["option A", "option B", "option C", "option D"],
+      "correct": 0,
+      "explanation": "why this answer is correct"
+    }
+  ],
+  "videos": [
+    {"title": "video title", "channel": "channel name", "duration": "duration like 12:34", "searchQuery": "youtube search query"}
+  ]
+}
+
+Include exactly ${level.flashcardCount} flashcards, ${level.quizCount} quiz questions, and ${level.videoCount} videos.
+Make content exam-focused, accurate, and educational.`
+    );
+
+    STATE.sessionData = result;
+    renderSummary(result);
+    renderFlashcards(result.flashcards);
+    renderQuiz(result.quiz);
+    renderVideos(result.videos);
+
+  } catch(e) {
+    console.error(e);
+    // Fallback demo content
+    const demo = getDemoContent(level.title);
+    STATE.sessionData = demo;
+    renderSummary(demo);
+    renderFlashcards(demo.flashcards);
+    renderQuiz(demo.quiz);
+    renderVideos(demo.videos);
+  }
+}
+
+function getDemoContent(title) {
+  return {
+    summary: `${title} is a fundamental concept in ${STATE.subject} that forms the basis for understanding more advanced topics. It involves key principles that have wide applications in both theoretical and practical contexts. Mastering this topic will significantly improve your exam performance and overall understanding of the subject.`,
+    keyPoints: [
+      'Core definition and fundamental principles',
+      'Mathematical relationships and key equations',
+      'Common applications and real-world examples',
+      'Important exceptions and special cases to remember',
+      'Connection to other topics in the syllabus',
+    ],
+    formulas: [
+      'F = ma (Force = Mass × Acceleration)',
+      'E = mc² (Energy = Mass × Speed of light squared)',
+    ],
+    flashcards: [
+      {question:'What is the primary definition of this concept?',answer:'The fundamental principle that describes the relationship between key variables in the system.'},
+      {question:'What are the SI units used in this topic?',answer:'The standard international units depend on the quantity: meters for length, kilograms for mass, seconds for time.'},
+      {question:'State the most important formula for this topic.',answer:'The core formula relates the primary variables. Always check units and conditions before applying it.'},
+      {question:'What are the main applications of this concept?',answer:'Applied in engineering, technology, and scientific research to solve real-world problems.'},
+      {question:'What common mistakes should you avoid?',answer:'Forgetting to check units, ignoring sign conventions, and misapplying formulas in edge cases.'},
+    ],
+    quiz: [
+      {question:'Which of the following best describes the core principle?',options:['Option A: Basic definition','Option B: Incorrect statement','Option C: Partial truth','Option D: Related but different concept'],correct:0,explanation:'Option A correctly captures the essence of the concept as defined in standard textbooks.'},
+      {question:'What unit would you use to measure the primary quantity?',options:['Meters (m)','Kilograms (kg)','Seconds (s)','Joules (J)'],correct:3,explanation:'Joules are the SI unit for energy, which is the quantity being measured here.'},
+      {question:'Under which condition does the standard formula NOT apply?',options:['At high velocities approaching light speed','At standard temperature','In a vacuum','On Earth\'s surface'],correct:0,explanation:'The standard formula breaks down at relativistic speeds; you need special relativity in those cases.'},
+    ],
+    videos: [
+      {title:`Complete Guide to ${title}`,channel:'Khan Academy',duration:'18:42',searchQuery:`${title} explained ${STATE.subject}`},
+      {title:`${title} — Solved Problems`,channel:'Physics Wallah',duration:'24:15',searchQuery:`${title} problems solved`},
+    ],
+  };
+}
+
+// ============================================================
+// RENDER CONTENT
+// ============================================================
+function renderSummary(data) {
+  const el = document.getElementById('summary-content');
+  const formulasHtml = (data.formulas||[]).map(f => `<div class="formula-box">${f}</div>`).join('');
+  const keyPointsHtml = (data.keyPoints||[]).map(k => `<div class="key-point">→ ${k}</div>`).join('');
+
+  el.innerHTML = `
+    <div class="summary-card">
+      <h3>📖 Overview</h3>
+      <p>${data.summary||''}</p>
+    </div>
+    ${formulasHtml ? `<div class="summary-card"><h3>🔢 Key Formulas</h3>${formulasHtml}</div>` : ''}
+    <div class="summary-card">
+      <h3>💡 Key Points</h3>
+      ${keyPointsHtml}
+    </div>
+    <div style="padding:16px 0">
+      <button class="btn-start" onclick="markComplete()">✅ Mark Level Complete &amp; Claim XP</button>
+    </div>
+  `;
+}
+
+function renderFlashcards(cards) {
+  if (!cards || !cards.length) {
+    document.getElementById('flashcard-content').innerHTML = '<div class="loading-block">No flashcards available.</div>';
+    return;
+  }
+  let idx = 0;
+  let knownCount = 0;
+
+  function render() {
+    if (idx >= cards.length) {
+      document.getElementById('flashcard-content').innerHTML = `
+        <div class="summary-card" style="text-align:center;padding:40px">
+          <div style="font-size:48px;margin-bottom:12px">🎉</div>
+          <h3>All Done!</h3>
+          <p style="margin-top:8px">You reviewed all ${cards.length} flashcards. ${knownCount} marked as known.</p>
+          <button class="btn-start" style="margin-top:20px" onclick="renderFlashcards(STATE.sessionData.flashcards)">🔄 Restart</button>
+        </div>`;
+      return;
+    }
+    const card = cards[idx];
+    const el = document.getElementById('flashcard-content');
+    el.innerHTML = `
+      <div class="flashcard-deck">
+        <div class="flip-hint">Tap card to reveal answer</div>
+        <div class="flashcard" id="fc-card" onclick="this.classList.toggle('flipped')">
+          <div class="flashcard-side">Question ${idx+1} of ${cards.length}</div>
+          <div class="flashcard-q">${card.question}</div>
+          <div class="flashcard-side" style="margin-top:16px;color:var(--green2)">Answer</div>
+          <div class="flashcard-a">${card.answer}</div>
+        </div>
+        <div class="flashcard-nav">
+          <button class="btn-fc retry" onclick="nextCard(false)">✕ Still learning</button>
+          <span class="fc-counter">${idx+1} / ${cards.length}</span>
+          <button class="btn-fc know" onclick="nextCard(true)">✓ Got it!</button>
+        </div>
+      </div>`;
+  }
+
+  window.nextCard = function(knew) {
+    if (knew) knownCount++;
+    idx++;
+    render();
+  };
+  render();
+}
+
+function renderQuiz(questions) {
+  if (!questions || !questions.length) {
+    document.getElementById('quiz-content').innerHTML = '<div class="loading-block">No questions available.</div>';
+    return;
+  }
+  STATE.quizScore = 0;
+  STATE.quizAnswered = 0;
+  const el = document.getElementById('quiz-content');
+  el.innerHTML = `
+    <div class="quiz-score-bar">
+      <span>Score:</span>
+      <span class="quiz-score-num" id="q-score">0</span>
+      <span>/ ${questions.length}</span>
+    </div>
+    ${questions.map((q, qi) => `
+    <div class="quiz-q-block" id="qqblock-${qi}">
+      <div class="quiz-q-num">Question ${qi+1}</div>
+      <div class="quiz-q-text">${q.question}</div>
+      <div class="quiz-options">
+        ${q.options.map((opt, oi) => `
+          <button class="quiz-opt" id="qopt-${qi}-${oi}" onclick="answerQuiz(${qi},${oi},${q.correct},'${(q.explanation||'').replace(/'/g,"\\'")}')">
+            ${String.fromCharCode(65+oi)}. ${opt}
+          </button>`).join('')}
+      </div>
+      <div class="quiz-explanation" id="qexp-${qi}">${q.explanation||''}</div>
+    </div>`).join('')}
+  `;
+}
+
+function answerQuiz(qi, chosen, correct, explanation) {
+  const block = document.getElementById('qqblock-'+qi);
+  if (block.dataset.answered) return;
+  block.dataset.answered = '1';
+  STATE.quizAnswered++;
+
+  const opts = block.querySelectorAll('.quiz-opt');
+  opts.forEach((o,i) => {
+    o.classList.add('answered');
+    if (i === correct) o.classList.add('correct');
+    else if (i === chosen) o.classList.add('wrong');
+  });
+
+  if (chosen === correct) {
+    STATE.quizScore++;
+    document.getElementById('q-score').textContent = STATE.quizScore;
+  }
+  const expEl = document.getElementById('qexp-'+qi);
+  if (expEl) { expEl.style.display = 'block'; }
+}
+
+function renderVideos(videos) {
+  if (!videos || !videos.length) {
+    document.getElementById('videos-content').innerHTML = '<div class="loading-block">No videos found.</div>';
+    return;
+  }
+  const el = document.getElementById('videos-content');
+  const colors = ['linear-gradient(135deg,#7c3aed,#ec4899)','linear-gradient(135deg,#06b6d4,#7c3aed)','linear-gradient(135deg,#f59e0b,#ef4444)','linear-gradient(135deg,#10b981,#06b6d4)'];
+  el.innerHTML = videos.map((v,i) => `
+    <div class="video-card" onclick="openVideo('${encodeURIComponent(v.searchQuery||v.title)}')">
+      <div class="video-thumb" style="background:${colors[i%colors.length]}">▶</div>
+      <div class="video-info">
+        <h4>${v.title}</h4>
+        <div class="video-channel">${v.channel||'Educational Channel'}</div>
+        <p>${v.duration||''} · Click to search on YouTube</p>
+      </div>
+    </div>`).join('') +
+    `<div class="summary-card" style="margin-top:8px">
+      <p style="font-size:13px">💡 These video recommendations are AI-generated based on your topic. Click any to search YouTube.</p>
+    </div>`;
+}
+
+function openVideo(query) {
+  window.open('https://www.youtube.com/results?search_query=' + query, '_blank');
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const tc = document.getElementById('tab-'+name);
+  if (tc) tc.classList.add('active');
+}
+
+// ============================================================
+// MARK COMPLETE + CONFETTI
+// ============================================================
+function markComplete() {
+  const level = STATE.levels[STATE.currentLevelIdx];
+  if (!level) return;
+
+  if (STATE.completedLevels.has(level.id)) {
+    showCompletion(level, true);
+    return;
+  }
+
+  STATE.completedLevels.add(level.id);
+  STATE.xp += level.xpReward;
+  STATE.streak = Math.min(STATE.streak + 1, 99);
+
+  showCompletion(level, false);
+}
+
+function showCompletion(level, alreadyDone) {
+  const msg = alreadyDone
+    ? 'You already completed this level! Great for revision.'
+    : ENCOURAGEMENTS[Math.floor(Math.random()*ENCOURAGEMENTS.length)] + ' Keep going!';
+
+  document.getElementById('completion-msg').textContent = msg;
+  document.getElementById('xp-gained').textContent = alreadyDone ? 'Revision Complete ✓' : `+${level.xpReward} XP Earned!`;
+  document.getElementById('completion-overlay').classList.add('show');
+  if (!alreadyDone) fireConfetti();
+}
+
+function closeCompletion() {
+  document.getElementById('completion-overlay').classList.remove('show');
+  goToMap();
+}
+
+function goToMap() {
+  showScreen('map');
+  refreshMap();
+  updateHeader();
+}
+
+// ============================================================
+// CONFETTI
+// ============================================================
+function fireConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const particles = [];
+  const colors = ['#7c3aed','#f59e0b','#10b981','#ec4899','#06b6d4','#c4b5fd','#fbbf24'];
+
+  for (let i = 0; i < 120; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      w: Math.random() * 10 + 5,
+      h: Math.random() * 6 + 3,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      rotation: Math.random() * Math.PI * 2,
+      vx: (Math.random()-0.5)*4,
+      vy: Math.random()*4+2,
+      vr: (Math.random()-0.5)*0.2,
+    });
+  }
+
+  let frame = 0;
+  function animate() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.rotation);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rotation += p.vr;
+      p.vy += 0.08;
+    });
+    frame++;
+    if (frame < 180) requestAnimationFrame(animate);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  animate();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+// Set min date for exam input to today
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('inp-date').min = today;
+document.getElementById('inp-date').value = '';
+</script>
+</body>
+</html>
